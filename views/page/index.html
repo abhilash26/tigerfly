@@ -1,0 +1,27 @@
+{{ define "page/index" }} {{ template "layout/header" }}
+<div id="app" class="mx-auto bg-secondary-content">
+  <div class="hero min-h-screen">
+    <div class="hero-content text-center text-neutral-content">
+      <div class="max-w-lg space-y-8">
+        <div class="flex items-center justify-center">
+          <img
+            src="/static/img/tigerfly_small.png"
+            class="size-48"
+            alt="Tigerfly Logo"
+          />
+        </div>
+        <h1 class="text-7xl">
+          <strong class="text-primary">Tiger</strong
+          ><em class="text-secondary">Fly</em>
+        </h1>
+        <h2 class="text-3xl italic">Power of a tiger, weight of a fly!</h2>
+        {{ template "components/counter" . }}
+        <p class="text-xl">
+          Build high performance web apps with good developer experience as
+          lightly as possible.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "layout/footer" }} {{ end }}

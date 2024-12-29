@@ -1,0 +1,13 @@
+{{ define "components/counter" }}
+<div id="counter" class="text-xl font-bold">
+  <button
+    class="btn btn-primary text-2xl"
+    hx-get="/counter-add"
+    hx-trigger="click"
+    hx-target="#counter-value"
+    hx-swap="innerHTML"
+  >
+    Count is <span id="counter-value">{{ or . "0" }}</span>
+  </button>
+</div>
+{{ end }}
