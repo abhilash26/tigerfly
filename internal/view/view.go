@@ -23,7 +23,7 @@ func PreloadAllTemplates() error {
 	rootTemplate := template.New("root")
 
 	options := &ViewOptions{
-		Path:      env.GetString("VIEW_PATH", "./views/"),
+		Path:      env.GetString("VIEW_PATH", "./views"),
 		Extension: env.GetString("VIEW_EXTENSION", ".html"),
 	}
 

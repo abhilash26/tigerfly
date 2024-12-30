@@ -2,4 +2,7 @@ node_modules/
 tmp/
 static/css/
 static/js/
-.env
+*.env
+cmd/
+*.db
+tailwindcss
