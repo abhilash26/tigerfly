@@ -24,7 +24,8 @@ func main() {
 
 	// Routing
 	r := router.New()
-	router.Static(r, "/static", "./static")
+	staticUrl := env.GetString("STATIC_URL", "/static")
+	router.Static(r, staticUrl, "./static")
 
 	routes.RegisterWeb(r)
 	routes.RegisterAPI(r)
