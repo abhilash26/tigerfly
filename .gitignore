@@ -5,4 +5,3 @@ static/js/
 *.env
 cmd/
 *.db
-tailwindcss
