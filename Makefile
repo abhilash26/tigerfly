@@ -63,7 +63,6 @@ watch:
 	@echo "Watching Tailwind..."
 	@pnpm run "dev:tailwind" &
 	@echo "Running Air..."
-	@make "watch-tailwind"
 	@air
 
 # Build the Tailwind CSS, Go app, and prepare the build directory
