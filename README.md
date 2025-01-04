@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/fe5bc8af-9519-4ede-b315-ea1bdf6e5dff)
+![image](https://github.com/user-attachments/assets/e184ca89-5751-4ba0-ae80-b9d4b27d3497)
 
 ### Attribution
 
