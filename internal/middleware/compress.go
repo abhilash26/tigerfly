@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"bytes"
 	"compress/gzip"
 	"log"
 	"net/http"
@@ -40,6 +39,9 @@ func Compress(level int) func(http.Handler) http.Handler {
 			}
 
 			w.Header().Set("Content-Encoding", "gzip")
+			// Length is unknown after compression
+			w.Header().Del("Content-Length")
+
 			gzipWriter, err := gzip.NewWriterLevel(w, level)
 			if err != nil {
 				next.ServeHTTP(w, r)
@@ -50,23 +52,19 @@ func Compress(level int) func(http.Handler) http.Handler {
 					log.Printf("Error closing gzip writer: %v", err)
 				}
 			}()
-			writer := &gzipResponseWriter{ResponseWriter: w, gzipWriter: gzipWriter, buffer: &bytes.Buffer{}}
 
-			next.ServeHTTP(writer, r)
-
-			if _, err := gzipWriter.Write(writer.buffer.Bytes()); err != nil {
-				log.Printf("Error writing to gzip writer: %v", err)
+			gzipResponse := &gzipResponseWriter{
+				ResponseWriter: w,
+				gzipWriter:     gzipWriter,
 			}
+			next.ServeHTTP(gzipResponse, r)
 		})
 	}
 }
 
 func isCompressibleContentType(contentType string) bool {
-	if compressibleContentTypes[contentType] {
-		return true
-	}
-	for prefix := range compressibleContentTypes {
-		if strings.HasPrefix(contentType, prefix) {
+	for ct := range compressibleContentTypes {
+		if strings.HasPrefix(contentType, ct) {
 			return true
 		}
 	}
@@ -76,9 +74,13 @@ func isCompressibleContentType(contentType string) bool {
 type gzipResponseWriter struct {
 	http.ResponseWriter
 	gzipWriter *gzip.Writer
-	buffer     *bytes.Buffer
 }
 
 func (g *gzipResponseWriter) Write(p []byte) (int, error) {
-	return g.buffer.Write(p)
+	return g.gzipWriter.Write(p)
+}
+
+// WriteHeader ensures the status code is written before any compressed data.
+func (g *gzipResponseWriter) WriteHeader(statusCode int) {
+	g.ResponseWriter.WriteHeader(statusCode)
 }

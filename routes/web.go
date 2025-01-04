@@ -15,7 +15,7 @@ func RegisterWeb(r *chi.Mux) {
 			"multipart/form-data", "text/html", "text/plain",
 		))
 		r.Use(middleware.SetContentType("text/html"))
-		r.Use(middleware.Compress(5))
+		r.Use(middleware.Compress(6))
 
 		r.NotFound(handlers.NotFound)
 
