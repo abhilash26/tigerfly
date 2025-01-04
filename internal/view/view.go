@@ -1,6 +1,7 @@
 package view
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -20,12 +21,24 @@ type ViewOptions struct {
 var templateCache = sync.Map{}
 
 func PreloadAllTemplates() error {
-	rootTemplate := template.New("root")
-
 	options := &ViewOptions{
 		Path:      env.GetString("VIEW_PATH", "./views"),
 		Extension: env.GetString("VIEW_EXTENSION", ".html"),
 	}
+
+	rootTemplate := template.New("root")
+	err := loadTemplatesConcurrently(options, rootTemplate)
+	if err != nil {
+		return err
+	}
+
+	templateCache.Store("root", rootTemplate)
+	return nil
+}
+
+func loadTemplatesConcurrently(options *ViewOptions, rootTemplate *template.Template) error {
+	var wg sync.WaitGroup
+	errCh := make(chan error, 1)
 
 	err := filepath.Walk(options.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -42,20 +55,32 @@ func PreloadAllTemplates() error {
 		}
 
 		templateName := strings.TrimSuffix(relativePath, options.Extension)
-		if _, err := rootTemplate.New(templateName).ParseFiles(path); err != nil {
-			log.Printf("Failed to parse template %s: %v", path, err)
-			return err
-		}
 
-		log.Printf("Template loaded: %s", templateName)
+		wg.Add(1)
+		go func(path, templateName string) {
+			defer wg.Done()
+			if _, err := rootTemplate.New(templateName).ParseFiles(path); err != nil {
+				log.Printf("Failed to parse template %s: %v", path, err)
+				select {
+				case errCh <- err:
+				default:
+				}
+				return
+			}
+			log.Printf("Template loaded: %s", templateName)
+		}(path, templateName)
+
 		return nil
 	})
-	if err != nil {
+
+	wg.Wait()
+	close(errCh)
+
+	if err := <-errCh; err != nil {
 		return err
 	}
 
-	templateCache.Store("root", rootTemplate)
-	return nil
+	return err
 }
 
 func logAndRespondError(w http.ResponseWriter, message string, statusCode int) {
@@ -64,18 +89,10 @@ func logAndRespondError(w http.ResponseWriter, message string, statusCode int) {
 }
 
 func RenderTemplate(w http.ResponseWriter, templateName string, data ...interface{}) {
-	// Load the root template from the cache
-	value, ok := templateCache.Load("root")
-	if !ok {
-		http.Error(w, "Template Not Found", http.StatusInternalServerError)
-		log.Println("Root template not found")
-		return
-	}
-
-	rootTemplate, ok := value.(*template.Template)
-	if !ok {
-		http.Error(w, "Template Cache Corrupted", http.StatusInternalServerError)
-		log.Println("Failed to assert template type from cache")
+	rootTemplate, err := getRootTemplate()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
 		return
 	}
 
@@ -84,14 +101,35 @@ func RenderTemplate(w http.ResponseWriter, templateName string, data ...interfac
 		templateData = data[0]
 	}
 
+	err = executeTemplate(w, rootTemplate, templateName, templateData)
+	if err != nil {
+		log.Println("Error executing template:", err)
+	}
+}
+
+func getRootTemplate() (*template.Template, error) {
+	value, ok := templateCache.Load("root")
+	if !ok {
+		return nil, fmt.Errorf("root template not found")
+	}
+
+	rootTemplate, ok := value.(*template.Template)
+	if !ok {
+		return nil, fmt.Errorf("template cache corrupted")
+	}
+
+	return rootTemplate, nil
+}
+
+func executeTemplate(w http.ResponseWriter, rootTemplate *template.Template, templateName string, templateData interface{}) error {
 	var builder strings.Builder
 	err := rootTemplate.ExecuteTemplate(&builder, templateName, templateData)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		log.Println("Error executing template:", err)
-		return
+		return err
 	}
-	w.Write([]byte(builder.String()))
+
+	_, err = w.Write([]byte(builder.String()))
+	return err
 }
 
 func Render404(w http.ResponseWriter) {
