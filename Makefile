@@ -11,7 +11,7 @@ OUTPUT_CSS="${ROOT_DIR}/static/css/main.css"
 INPUT_JS="${ROOT_DIR}/assets/js/main.js"
 OUTPUT_JS="${ROOT_DIR}/static/js/main.js"
 
-.PHONY: init watch build clean check-env install-air install-tailwind install-esbuild refresh watch-css watch-js watch-go build-css build-js build-go
+.PHONY: init watch build clean check-env install-air install-tailwind install-esbuild refresh run-css run-js watch-css watch-js watch-go build-css build-js build-go
 
 # Check if .env file exists and create from env.example if not
 check-env:
@@ -36,6 +36,7 @@ refresh:
 
 # Initialize environment, install necessary tools, and set up project
 init: check-env install-air install-tailwind install-esbuild refresh
+	@echo "-----------------------"
 	@echo "🎉 Welcome to Tigerfly!"
 	@echo "-----------------------"
 
@@ -44,6 +45,17 @@ init: check-env install-air install-tailwind install-esbuild refresh
 
 # Default target
 default: init
+
+# Run for changes with Tailwind and Esbuild
+run-css:
+	@echo "🚀 Running CSS with Tailwind..."
+	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}"
+
+run-js:
+	@echo "🚀 Running JS with Esbuild..."
+	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --outfile="${OUTPUT_JS}"
+
+run: run-css run-js watch-go
 
 # Watch for changes with Tailwind, Esbuild, and Go app with air
 watch-css:
@@ -76,6 +88,8 @@ build-go:
 	@cp "${DATABASE_FILE}" "${BUILD_DIR}/${DATABASE_FILE}"
 	@echo "⚙️  Building Go app..."
 	@go build -o "${BUILD_DIR}/app" main.go
+
+build: build-css build-js build-go
 
 # Clean up build and temp directories
 clean:
