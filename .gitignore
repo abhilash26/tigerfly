@@ -5,3 +5,4 @@ static/js/
 *.env
 cmd/
 *.db
+dev/tools/

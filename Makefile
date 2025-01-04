@@ -1,86 +1,85 @@
-.PHONY: init watch build clean check-env install-air install-pnpm
+# Define variables
+
+ROOT_DIR="$(shell pwd)"
+TEMP_DIR="${ROOT_DIR}/tmp"
+BUILD_DIR="${ROOT_DIR}/cmd"
+SCRIPTS_DIR="${ROOT_DIR}/dev/scripts"
+TOOLS_DIR="${ROOT_DIR}/dev/tools"
+
+INPUT_CSS="${ROOT_DIR}/assets/css/main.css"
+OUTPUT_CSS="${ROOT_DIR}/static/css/main.css"
+INPUT_JS="${ROOT_DIR}/assets/js/main.js"
+OUTPUT_JS="${ROOT_DIR}/static/js/main.js"
+
+.PHONY: init watch build clean check-env install-air install-tailwind install-esbuild refresh watch-css watch-js watch-go build-css build-js build-go
 
 # Check if .env file exists and create from env.example if not
 check-env:
-	@if [ -f ".env" ]; then \
-		echo ".env file exists, proceeding with the script..."; \
-	else \
-		if [ -f "env.example" ]; then \
-			echo ".env file is missing, copying env.example to .env..."; \
-			cp "env.example" ".env"; \
-			echo ".env has been created from env.example"; \
-		else \
-			echo "Error: Neither .env nor env.example file exists. Please create an env.example file."; \
-			exit 1; \
-		fi \
-	fi
+	@sh "${SCRIPTS_DIR}/check_env.sh" "${ROOT_DIR}"
 
 # Install 'air' if not already installed
 install-air:
-	@if command -v air &>/dev/null; then \
-		echo "'air' command is already installed."; \
-		exit 0; \
-	fi
+	@sh "${SCRIPTS_DIR}/install_air.sh"
 
-	@if ! command -v go &>/dev/null; then \
-		echo "Go is not installed. Please install Go first."; \
-		exit 1; \
-	fi
+# Install 'tailwindcss' if not already installed
+install-tailwind:
+	@sh "${SCRIPTS_DIR}/install_tailwind_cli.sh" "${TOOLS_DIR}"
 
-	echo "Installing 'air' using Go..."; \
-	go install "github.com/air-verse/air@latest"; \
+# Install 'esbuild' if not already installed
+install-esbuild:
+	@sh "${SCRIPTS_DIR}/install_esbuild.sh" "${TOOLS_DIR}"
 
-	@if command -v air &>/dev/null; then \
-		echo "'air' has been successfully installed."; \
-	else \
-		echo "Failed to install 'air'. Please check for errors."; \
-		exit 1; \
-	fi
-
-# Install 'pnpm' if not already installed
-install-pnpm:
-	@if ! command -v pnpm &>/dev/null; then \
-		echo "pnpm is not installed. Please install curl first."; \
-		exit 0; \
-	fi
-
-# Initialize environment, install air and pnpm, and tidy Go modules
-init: check-env install-air install-pnpm
-	@echo "Welcome to Tigerfly!"
-	@echo "--------------------"
-	@echo "Installing JS packages with pnpm..."
-	@pnpm i
-	@echo "Refreshing Go packages..."
+# Refresh Go modules
+refresh:
+	@echo "🔄 Refreshing Go modules..."
 	@go mod tidy
+
+# Initialize environment, install necessary tools, and set up project
+init: check-env install-air install-tailwind install-esbuild refresh
+	@echo "🎉 Welcome to Tigerfly!"
+	@echo "-----------------------"
 
 # Load environment variables from .env file (if exists)
 -include .env
 
+# Default target
 default: init
 
-# Watch for changes with Tailwind and air
-watch:
-	@echo "Watching Tailwind..."
-	@pnpm run "dev:tailwind" &
-	@echo "Running Air..."
+# Watch for changes with Tailwind, Esbuild, and Go app with air
+watch-css:
+	@echo "👀 Watching CSS with Tailwind..."
+	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}" --watch
+
+watch-js:
+	@echo "👀 Watching JS with Esbuild..."
+	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --outfile="${OUTPUT_JS}" --watch=forever
+
+watch-go:
+	@echo "🚀 Running Air..."
 	@air
 
-# Build the Tailwind CSS, Go app, and prepare the build directory
-build:
-	@echo "Building Tailwind CSS..."
-	@pnpm run "build:tailwind"
-	@echo "Copying directories to build..."
+# Build the Tailwind CSS, Esbuild, and Go app, and prepare the build directory
+build-css:
+	@echo "🔨 Building CSS with Tailwind..."
+	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}" --minify
+
+build-js:
+	@echo "🔨 Building JS with Esbuild..."
+	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --minify --bundle --outfile="${OUTPUT_JS}"
+
+build-go:
+	@echo "📂 Copying directories to build..."
 	@mkdir -p "${BUILD_DIR}"
 	@cp -r "${VIEW_PATH}" "${BUILD_DIR}/"
 	@cp .env "${BUILD_DIR}/.env"
-	@echo "Copying database..."
+	@echo "📦 Copying database..."
 	@cp "${DATABASE_FILE}" "${BUILD_DIR}/${DATABASE_FILE}"
-	@echo "Building Go app..."
+	@echo "⚙️  Building Go app..."
 	@go build -o "${BUILD_DIR}/app" main.go
 
 # Clean up build and temp directories
 clean:
-	@echo "Cleaning ${TEMP_DIR} directory..."
+	@echo "🧹 Cleaning ${TEMP_DIR} directory..."
 	@rm -rf "${TEMP_DIR}/"
-	@echo "Cleaning build directory..."
+	@echo "🧹 Cleaning build directory..."
 	@rm -rf "${BUILD_DIR}/"
