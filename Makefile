@@ -1,21 +1,24 @@
 # Define variables
+ROOT_DIR := $(shell pwd)
+TEMP_DIR := ${ROOT_DIR}/tmp
+BUILD_DIR := ${ROOT_DIR}/cmd
+SCRIPTS_DIR := ${ROOT_DIR}/dev/scripts
+TOOLS_DIR := ${ROOT_DIR}/dev/tools
 
-ROOT_DIR="$(shell pwd)"
-TEMP_DIR="${ROOT_DIR}/tmp"
-BUILD_DIR="${ROOT_DIR}/cmd"
-SCRIPTS_DIR="${ROOT_DIR}/dev/scripts"
-TOOLS_DIR="${ROOT_DIR}/dev/tools"
+INPUT_CSS := ${ROOT_DIR}/assets/css/main.css
+OUTPUT_CSS := ${ROOT_DIR}/static/css/main.css
+INPUT_JS := ${ROOT_DIR}/assets/js/main.js
+OUTPUT_JS := ${ROOT_DIR}/static/js/main.js
 
-INPUT_CSS="${ROOT_DIR}/assets/css/main.css"
-OUTPUT_CSS="${ROOT_DIR}/static/css/main.css"
-INPUT_JS="${ROOT_DIR}/assets/js/main.js"
-OUTPUT_JS="${ROOT_DIR}/static/js/main.js"
-
-.PHONY: init watch build clean check-env install-air install-tailwind install-esbuild refresh run-css run-js watch-css watch-js watch-go build-css build-js build-go
+.PHONY: init watch build clean check-env install-sqlc install-air install-tailwind install-esbuild refresh run-css run-js watch-css watch-js watch-go build-css build-js build-go
 
 # Check if .env file exists and create from env.example if not
 check-env:
 	@sh "${SCRIPTS_DIR}/check_env.sh" "${ROOT_DIR}"
+
+# Install 'sqlc' if not already installed
+install-sqlc:
+	@sh "${SCRIPTS_DIR}/install_sqlc.sh"
 
 # Install 'air' if not already installed
 install-air:
@@ -35,7 +38,7 @@ refresh:
 	@go mod tidy
 
 # Initialize environment, install necessary tools, and set up project
-init: check-env install-air install-tailwind install-esbuild refresh
+init: check-env install-sqlc install-air install-tailwind install-esbuild refresh
 	@echo "-----------------------"
 	@echo "🎉 Welcome to Tigerfly!"
 	@echo "-----------------------"
@@ -64,7 +67,7 @@ watch-css:
 
 watch-js:
 	@echo "👀 Watching JS with Esbuild..."
-	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --outfile="${OUTPUT_JS}" --watch=forever
+	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --outfile="${OUTPUT_JS}" --watch
 
 watch-go:
 	@echo "🚀 Running Air..."
@@ -80,7 +83,7 @@ build-js:
 	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --minify --bundle --outfile="${OUTPUT_JS}"
 
 build-go:
-	@echo "📂 Copying directories to build..."
+	@echo "📂 Preparing build directory..."
 	@mkdir -p "${BUILD_DIR}"
 	@cp -r "${VIEW_PATH}" "${BUILD_DIR}/"
 	@cp .env "${BUILD_DIR}/.env"
