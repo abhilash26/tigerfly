@@ -50,7 +50,7 @@ func (s *ServerOptions) createServer(handler http.Handler) *http.Server {
 
 func (s *ServerOptions) Start(handler http.Handler) {
 	server := s.createServer(handler)
-	log.Printf("Server is starting on port %d", s.Port)
+  log.Printf("🚀 Server started on port:%d", s.Port)
 
 	// Channel to capture OS signals for shutdown
 	stop := make(chan os.Signal, 1)
