@@ -1,0 +1,27 @@
+package page
+
+import (
+	"github.com/abhilash26/tigerfly/views/layout"
+	"strconv"
+)
+
+templ Error(code int, message string, redirect bool) {
+	@layout.Main() {
+		<div id="app" class="min-h-screen grid bg-gray-950 text-gray-400">
+			<section id="hero" class="max-w-[480px] place-self-center text-center">
+				<div class="flex flex-col gap-8">
+					<img src="/static/img/tigerfly_small.png" class="block mx-auto size-48" alt="Tigerfly Logo"/>
+					<h1 class="text-7xl">
+						<strong class="text-red-800">{ strconv.Itoa(code) }</strong>
+					</h1>
+					<h2 class="text-2xl">{ message }</h2>
+					if redirect {
+						<a href="/" class="px-10 py-4 text-2xl font-semibold rounded-full bg-red-800 text-gray-100 select-none transition-transform duration-300 hover:scale-95 active:scale-90 focus:outline-none focus:ring focus:ring-red-800 focus:ring-opacity-80">
+							Go to Home
+						</a>
+					}
+				</div>
+			</section>
+		</div>
+	}
+}

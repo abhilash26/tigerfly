@@ -47,6 +47,8 @@ run:
 	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}"
 	@echo "🚀 Running js with esbuild..."
 	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --outfile="${OUTPUT_JS}"
+	@echo "🚀 Running go with air..."
+	@air
 
 # Watch for changes with Tailwind, Esbuild, and Go app with air
 watch-css:

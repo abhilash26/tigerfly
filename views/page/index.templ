@@ -1,0 +1,37 @@
+package page
+
+import (
+    "github.com/abhilash26/tigerfly/views/layout"
+    "strconv"
+)
+
+templ Index(count int) {
+@layout.Main() {
+<div id="app" class="min-h-screen grid bg-gray-950 text-gray-400">
+  <section id="hero" class="max-w-[480px] place-self-center text-center">
+      <div class="flex flex-col gap-8">
+        <img src="/static/img/tigerfly_small.png" class="block mx-auto size-48" alt="Tigerfly Logo" />
+        <h1 class="text-7xl">
+          <strong class="text-red-600 font-extrabold">Tiger</strong>
+          <em class="text-red-800">Fly</em>
+        </h1>
+        <h2 class="italic text-3xl font-semibold text-red-200">
+          Power of a tiger, weight of a fly!
+        </h2>
+        <div id="counter" class="text-xl font-bold">
+          <button
+            class="px-10 py-4 text-2xl font-semibold rounded-full bg-red-800 text-gray-100 select-none transition-transform duration-300 hover:scale-95 active:scale-90 focus:outline-none focus:ring focus:ring-red-800 focus:ring-opacity-80"
+            hx-get="/counter-add" hx-trigger="click" hx-target="#counter-value" hx-swap="innerHTML">
+            <span class="text-gray-300">Count : </span>
+            <span id="counter-value" class="transition-all">{ strconv.Itoa(count) }</span>
+          </button>
+        </div>
+        <p class="text-xl">
+          Build high performance web apps with good developer experience as
+          lightly as possible.
+        </p>
+    </div>
+  </section>
+</div>
+}
+}

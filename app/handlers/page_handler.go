@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/abhilash26/tigerfly/internal/view"
+	"github.com/abhilash26/tigerfly/views/page"
 )
 
 var counter int = 0
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	view.RenderTemplate(w, "page/index", counter)
+	indexPage := page.Index(counter)
+	indexPage.Render(r.Context(), w)
 }
 
 func CounterAdd(w http.ResponseWriter, r *http.Request) {

@@ -1,6 +1,6 @@
 // tailwind.config.js
 export default {
-  content: ["./views/**/*.{tmpl,html}"],
+  content: ["./views/**/*.{templ,html}"],
   theme: {
     extend: {},
   },

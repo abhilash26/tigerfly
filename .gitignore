@@ -6,3 +6,5 @@ static/js/
 cmd/
 *.db
 dev/tools/
+*_templ.go
+*_templ.txt
