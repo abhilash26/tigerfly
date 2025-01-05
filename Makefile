@@ -10,30 +10,18 @@ OUTPUT_CSS := ${ROOT_DIR}/static/css/main.css
 INPUT_JS := ${ROOT_DIR}/assets/js/main.js
 OUTPUT_JS := ${ROOT_DIR}/static/js/main.js
 
-.PHONY: init watch build clean check-env install-sqlc install-templ install-air install-tailwind install-esbuild refresh run-css run-js watch-css watch-js watch-go build-css build-js build-go
+.PHONY: init watch build clean check-env install-requirements refresh run-css run-js watch-css watch-js watch-go build-css build-js build-go
 
 # Check if .env file exists and create from env.example if not
 check-env:
 	@sh "${SCRIPTS_DIR}/check_env.sh" "${ROOT_DIR}"
 
-# Install 'sqlc' if not already installed
-install-sqlc:
-	@sh "${SCRIPTS_DIR}/go_install.sh" "sqlc" "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
-
-# Install 'templ' if not already installed
-install-templ:
-	@sh "${SCRIPTS_DIR}/go_install.sh" "templ" "github.com/a-h/templ/cmd/templ@latest"
-
-# Install 'air' if not already installed
-install-air:
+# Install 'requirements' if not already installed
+install-requirements:
 	@sh "${SCRIPTS_DIR}/go_install.sh" "air" "github.com/air-verse/air@latest"
-
-# Install 'tailwindcss' if not already installed
-install-tailwind:
+	@sh "${SCRIPTS_DIR}/go_install.sh" "templ" "github.com/a-h/templ/cmd/templ@latest"
 	@sh "${SCRIPTS_DIR}/install_tailwind_cli.sh" "${TOOLS_DIR}"
-
-# Install 'esbuild' if not already installed
-install-esbuild:
+	@sh "${SCRIPTS_DIR}/go_install.sh" "sqlc" "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
 	@sh "${SCRIPTS_DIR}/install_esbuild.sh" "${TOOLS_DIR}"
 
 # Refresh Go modules
@@ -42,7 +30,7 @@ refresh:
 	@go mod tidy
 
 # Initialize environment, install necessary tools, and set up project
-init: check-env install-sqlc install-templ install-air install-tailwind install-esbuild refresh
+init: check-env install-requirements refresh
 	@echo "-----------------------"
 	@echo "🎉 Welcome to Tigerfly!"
 	@echo "-----------------------"
