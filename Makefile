@@ -26,7 +26,7 @@ install-requirements:
 
 # Refresh Go modules
 refresh:
-	@echo "🔄 Refreshing Go modules..."
+	@echo "🔄 Refreshing go modules..."
 	@go mod tidy
 
 # Initialize environment, install necessary tools, and set up project
@@ -43,29 +43,29 @@ default: init
 
 # Run for changes with Tailwind and Esbuild
 run:
-	@echo "🚀 Running CSS with Tailwind..."
+	@echo "🚀 Running css with tailwind..."
 	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}"
-	@echo "🚀 Running JS with Esbuild..."
+	@echo "🚀 Running js with esbuild..."
 	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --outfile="${OUTPUT_JS}"
 
 # Watch for changes with Tailwind, Esbuild, and Go app with air
 watch-css:
-	@echo "👀 Watching CSS with Tailwind..."
+	@echo "👀 Watching css with tailwind..."
 	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}" --watch
 
 watch-js:
-	@echo "👀 Watching JS with Esbuild..."
+	@echo "👀 Watching js with esbuild..."
 	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --outfile="${OUTPUT_JS}" --watch
 
 watch-go:
-	@echo "🚀 Running Air..."
+	@echo "🚀 Running air..."
 	@air
 
 # Build the Tailwind CSS, Esbuild, and Go app, and prepare the build directory
 build:
-	@echo "🔨 Building CSS with Tailwind..."
+	@echo "🔨 Building css with tailwind..."
 	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}" --minify
-	@echo "🔨 Building JS with Esbuild..."
+	@echo "🔨 Building js with esbuild..."
 	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --minify --bundle --outfile="${OUTPUT_JS}"
 	@echo "📂 Preparing build directory..."
 	@mkdir -p "${BUILD_DIR}"
@@ -73,7 +73,7 @@ build:
 	@cp .env "${BUILD_DIR}/.env"
 	@echo "📦 Copying database..."
 	@cp "${DATABASE_FILE}" "${BUILD_DIR}/${DATABASE_FILE}"
-	@echo "⚙️  Building Go app..."
+	@echo "⚙️  Building go app..."
 	@go build -o "${BUILD_DIR}/app" main.go
 
 # Clean up build and temp directories
