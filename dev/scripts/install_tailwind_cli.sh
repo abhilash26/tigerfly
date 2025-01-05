@@ -5,7 +5,7 @@ DEST_FILE="$DEST_DIR/tailwindcss"
 
 # Check if Tailwind CLI is available via command or if the binary exists in the destination directory
 if command -v tailwindcss >/dev/null 2>&1 || [ -f "$DEST_FILE" ]; then
-  echo "✅ Tailwind CLI is available."
+  echo "✅ tailwind cli is available."
   exit 0
 fi
 
@@ -60,8 +60,8 @@ chmod u+x "$DEST_FILE"
 
 # Verify the download
 if [ -f "$DEST_FILE" ]; then
-  echo "✅ Tailwind CLI has been successfully downloaded to $DEST_FILE."
+  echo "✅ tailwind cli has been successfully downloaded to $DEST_FILE."
 else
-  echo "❌ Failed to download the Tailwind CLI. Please download it manually from GitHub."
+  echo "❌ Failed to download the tailwind cli. Please download it manually from GitHub."
   exit 1
 fi
