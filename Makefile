@@ -10,7 +10,7 @@ OUTPUT_CSS := ${ROOT_DIR}/static/css/main.css
 INPUT_JS := ${ROOT_DIR}/assets/js/main.js
 OUTPUT_JS := ${ROOT_DIR}/static/js/main.js
 
-.PHONY: init watch build clean check-env install-requirements refresh run-css run-js watch-css watch-js watch-go build-css build-js build-go
+.PHONY: init watch build clean check-env install-requirements refresh run watch-css watch-js watch-go build
 
 # Check if .env file exists and create from env.example if not
 check-env:
@@ -42,15 +42,11 @@ init: check-env install-requirements refresh
 default: init
 
 # Run for changes with Tailwind and Esbuild
-run-css:
+run:
 	@echo "🚀 Running CSS with Tailwind..."
 	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}"
-
-run-js:
 	@echo "🚀 Running JS with Esbuild..."
 	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --outfile="${OUTPUT_JS}"
-
-run: run-css run-js watch-go
 
 # Watch for changes with Tailwind, Esbuild, and Go app with air
 watch-css:
@@ -66,15 +62,11 @@ watch-go:
 	@air
 
 # Build the Tailwind CSS, Esbuild, and Go app, and prepare the build directory
-build-css:
+build:
 	@echo "🔨 Building CSS with Tailwind..."
 	@${TOOLS_DIR}/tailwindcss -i "${INPUT_CSS}" -o "${OUTPUT_CSS}" --minify
-
-build-js:
 	@echo "🔨 Building JS with Esbuild..."
 	@${TOOLS_DIR}/esbuild "${INPUT_JS}" --minify --bundle --outfile="${OUTPUT_JS}"
-
-build-go:
 	@echo "📂 Preparing build directory..."
 	@mkdir -p "${BUILD_DIR}"
 	@cp -r "${VIEW_PATH}" "${BUILD_DIR}/"
@@ -83,8 +75,6 @@ build-go:
 	@cp "${DATABASE_FILE}" "${BUILD_DIR}/${DATABASE_FILE}"
 	@echo "⚙️  Building Go app..."
 	@go build -o "${BUILD_DIR}/app" main.go
-
-build: build-css build-js build-go
 
 # Clean up build and temp directories
 clean:
