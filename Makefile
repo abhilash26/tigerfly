@@ -20,6 +20,10 @@ check-env:
 install-sqlc:
 	@sh "${SCRIPTS_DIR}/go_install.sh" "sqlc" "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
 
+# Install 'templ' if not already installed
+install-templ:
+	@sh "${SCRIPTS_DIR}/go_install.sh" "templ" "github.com/a-h/templ/cmd/templ@latest"
+
 # Install 'air' if not already installed
 install-air:
 	@sh "${SCRIPTS_DIR}/go_install.sh" "air" "github.com/air-verse/air@latest"
