@@ -9,17 +9,23 @@ import (
 	"time"
 )
 
+var envMap = make(map[string]string)
+
 func processEnvFile(file *os.File) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		processLine(scanner.Text())
 	}
-	return scanner.Err()
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error reading .env file: %v", err)
+		return err
+	}
+	return nil
 }
 
 func processLine(line string) {
 	line = strings.TrimSpace(line)
-	if line == "" || strings.HasPrefix(line, "#") {
+	if line == "" || strings.HasPrefix(line, "#") { // Skip empty lines and comments
 		return
 	}
 
@@ -31,9 +37,8 @@ func processLine(line string) {
 
 	key := strings.TrimSpace(parts[0])
 	value := strings.Trim(strings.TrimSpace(parts[1]), `"'`)
-	if err := os.Setenv(key, value); err != nil {
-		log.Printf("Error setting environment variable %s: %v", key, err)
-	}
+
+	envMap[key] = value
 }
 
 func LoadEnvFile(filepath string) error {
@@ -44,6 +49,7 @@ func LoadEnvFile(filepath string) error {
 	file, err := os.Open(filepath)
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
+		return err
 	}
 	defer file.Close()
 
@@ -57,21 +63,19 @@ func getEnv[T any](key string, defaultValue T, parser func(string) (T, error)) T
 	}
 	parsedValue, err := parser(valueStr)
 	if err != nil {
-		log.Printf("Invalid value for %s, using default: %v", key, defaultValue)
+		log.Printf("Invalid value for %s: %v. Using default: %v", key, err, defaultValue)
 		return defaultValue
 	}
 	return parsedValue
 }
 
-// Specific Functions for Common Types
-
+// Get function for different data types
 func GetString(key string, defaultValue string) string {
-	value, exists := os.LookupEnv(key)
-	if !exists || value == "" {
-		log.Printf("Environment variable %s not set or empty, using default: %s", key, defaultValue)
-		return defaultValue
+	if value, exists := envMap[key]; exists && value != "" {
+		return value
 	}
-	return value
+	log.Printf("Environment variable %s not set or empty, using default: %s", key, defaultValue)
+	return defaultValue
 }
 
 func GetInt(key string, defaultValue int) int {

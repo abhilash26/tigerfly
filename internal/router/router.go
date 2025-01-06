@@ -12,10 +12,11 @@ func New() *chi.Mux {
 	r := chi.NewRouter()
 
 	// Essentials Middlewares
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.CleanSlashes)
-
+	r.Use(
+		middleware.Logger,
+		middleware.Recoverer,
+		middleware.CleanSlashes,
+	)
 	return r
 }
 

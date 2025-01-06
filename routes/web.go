@@ -10,12 +10,11 @@ import (
 
 func RegisterWeb(r *chi.Mux) {
 	r.Route("/", func(r chi.Router) {
-		r.Use(middleware.AllowContentType(
-			"application/x-www-form-urlencoded",
-			"multipart/form-data", "text/html", "text/plain",
-		))
-		r.Use(middleware.SetContentType("text/html"))
-		r.Use(middleware.Compress(6))
+		r.Use(
+			middleware.AllowContentType("application/x-www-form-urlencoded", "multipart/form-data", "text/html", "text/plain"),
+			middleware.SetContentType("text/html"),
+			middleware.Compress(6),
+		)
 
 		r.NotFound(handlers.NotFound)
 
